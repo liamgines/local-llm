@@ -85,6 +85,23 @@ def path_repository_commit_hash(path):
 def directory_print(git_repository_path):
     print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
 
+def directory_change(full_command, git_repository_path):
+    if len(full_command) == 1:
+        git_repository_path = CURRENT_WORKING_DIRECTORY
+
+    else:
+        new_relative_path = os.path.join(git_repository_path, full_command[1])
+        new_absolute_path = os.path.join(full_command[1])
+        if os.path.isdir(new_relative_path):
+            git_repository_path = new_relative_path
+
+        elif os.path.isdir(new_absolute_path):
+            git_repository_path = new_absolute_path
+
+        git_repository_path = os.path.realpath(git_repository_path)
+
+    return git_repository_path
+
 def main():
     git_repository_path = CURRENT_WORKING_DIRECTORY
 
@@ -107,21 +124,7 @@ def main():
             command = message_split[0]
             if command == "cd":
                 previous_git_repository_path = git_repository_path
-
-                if len(message_split) == 1:
-                    git_repository_path = CURRENT_WORKING_DIRECTORY
-
-                else:
-                    new_relative_path = os.path.join(git_repository_path, message_split[1])
-                    new_absolute_path = os.path.join(message_split[1])
-                    if os.path.isdir(new_relative_path):
-                        git_repository_path = new_relative_path
-
-                    elif os.path.isdir(new_absolute_path):
-                        git_repository_path = new_absolute_path
-
-                    git_repository_path = os.path.realpath(git_repository_path)
-
+                git_repository_path = directory_change(message_split, git_repository_path)
                 directory_print(git_repository_path)
 
                 if previous_git_repository_path != git_repository_path:
