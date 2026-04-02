@@ -7,7 +7,7 @@ import mimetypes
 CHAT_FORMAT = "chatml"
 MODEL_PATH = "model.gguf"
 DEFAULT_SYSTEM_CONTENT = "You are an assistant who perfectly summarizes information and answers questions." 
-CURRENT_WORKING_DIRECTORY = os.getcwd()
+CURRENT_WORKING_DIRECTORY = os.path.realpath(os.getcwd())
 
 def chat_completion_get_contents(chat_completion):
     contents = []
@@ -75,6 +75,13 @@ def system_content_get(git_repository_path):
 
     return system_content
 
+def path_repository_commit_hash(path):
+    commit_hash = ""
+    if path_is_repository(path):
+        commit_hash = subprocess.run(["git", "-C", path, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+
+    return commit_hash
+
 def main():
     git_repository_path = CURRENT_WORKING_DIRECTORY
 
@@ -84,6 +91,7 @@ def main():
     messages = []
     system_message = { "role": "system", "content": system_content_get(git_repository_path) }
     messages.append(system_message)
+    commit_hash = path_repository_commit_hash(git_repository_path)
 
     while True:
         message = input("\nQ: ")
@@ -95,6 +103,8 @@ def main():
         if message_split:
             command = message_split[0]
             if command == "cd":
+                previous_git_repository_path = git_repository_path
+
                 if len(message_split) == 1:
                     git_repository_path = CURRENT_WORKING_DIRECTORY
 
@@ -111,13 +121,22 @@ def main():
 
                 print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
 
-                system_message = { "role": "system", "content": system_content_get(git_repository_path) }
-                messages = [system_message]
+                if previous_git_repository_path != git_repository_path:
+                    system_message = { "role": "system", "content": system_content_get(git_repository_path) }
+                    # Reset history if path was changed
+                    messages = [system_message]
+
                 continue
 
             elif command == "pwd":
                 print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
                 continue
+
+        if commit_hash != path_repository_commit_hash(git_repository_path):
+            commit_hash = path_repository_commit_hash(git_repository_path)
+            system_message = { "role": "system", "content": system_content_get(git_repository_path) }
+            # Get new system message if commit hash changed
+            messages[0] = system_message
 
         messages.append( { "role": "user", "content": message } )
 
