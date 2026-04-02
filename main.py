@@ -1,9 +1,11 @@
 from llama_cpp import Llama
+import os
 
 # CHAT_FORMAT must be set according to the model
 CHAT_FORMAT = "chatml"
 MODEL_PATH = "model.gguf"
 SYSTEM_CONTENT = "You are an assistant who perfectly summarizes information and answers questions." 
+CURRENT_WORKING_DIRECTORY = os.getcwd()
 
 def chat_completion_get_contents(chat_completion):
     contents = []
@@ -34,6 +36,8 @@ def chat_completion_get_content(chat_completion):
     return contents[0]
 
 def main():
+    git_repository_path = CURRENT_WORKING_DIRECTORY
+
     llm = Llama(model_path=MODEL_PATH, chat_format=CHAT_FORMAT, verbose=False)
 
     messages = []
@@ -44,8 +48,33 @@ def main():
         message = input("\nQ: ")
         if not message:
             return 
-
         message = message.strip()
+
+        message_split = message.split()
+        if message_split:
+            command = message_split[0]
+            if command == "cd":
+                if len(message_split) == 1:
+                    git_repository_path = CURRENT_WORKING_DIRECTORY
+
+                else:
+                    new_relative_path = os.path.join(git_repository_path, message_split[1])
+                    new_absolute_path = os.path.join(message_split[1])
+                    if os.path.isdir(new_relative_path):
+                        git_repository_path = new_relative_path
+
+                    elif os.path.isdir(new_absolute_path):
+                        git_repository_path = new_absolute_path
+
+                    git_repository_path = os.path.realpath(git_repository_path)
+
+                print(f"A: {git_repository_path}")
+                continue
+
+            elif command == "pwd":
+                print(f"A: {git_repository_path}")
+                continue
+
         messages.append( { "role": "user", "content": message } )
 
         chat_completion = llm.create_chat_completion(messages=messages)
