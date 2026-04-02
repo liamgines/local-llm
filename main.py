@@ -82,6 +82,9 @@ def path_repository_commit_hash(path):
 
     return commit_hash
 
+def directory_print(git_repository_path):
+    print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
+
 def main():
     git_repository_path = CURRENT_WORKING_DIRECTORY
 
@@ -119,7 +122,7 @@ def main():
 
                     git_repository_path = os.path.realpath(git_repository_path)
 
-                print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
+                directory_print(git_repository_path)
 
                 if previous_git_repository_path != git_repository_path:
                     system_message = { "role": "system", "content": system_content_get(git_repository_path) }
@@ -129,7 +132,7 @@ def main():
                 continue
 
             elif command == "pwd":
-                print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
+                directory_print(git_repository_path)
                 continue
 
         if commit_hash != path_repository_commit_hash(git_repository_path):
