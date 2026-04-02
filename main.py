@@ -53,13 +53,12 @@ def path_is_repository_message(path):
 def path_get_repository_files(path):
     git_repository_files = []
     if (path_is_repository(path)):
-        git_repository_files = subprocess.run(["git", "ls-tree", "--full-tree", "-r", "--name-only", "HEAD"], capture_output=True, text=True).stdout.split()
+        git_repository_files = subprocess.run(["git", "-C", path, "ls-tree", "--full-tree", "-r", "--name-only", "HEAD"], capture_output=True, text=True).stdout.split()
 
     return git_repository_files
 
-def main():
+def system_content_get(git_repository_path):
     system_content = DEFAULT_SYSTEM_CONTENT
-    git_repository_path = CURRENT_WORKING_DIRECTORY
     git_repository_files = path_get_repository_files(git_repository_path)
     if git_repository_files:
         system_content += "\nYou may use the following files to help you answer the questions if necessary:\n\n"
@@ -74,11 +73,16 @@ def main():
                 file_data = file.read().rstrip()
                 system_content += file_data + "\n\n"
 
+    return system_content
+
+def main():
+    git_repository_path = CURRENT_WORKING_DIRECTORY
+
     # if n_ctx is 0, it is determined from the model
     llm = Llama(model_path=MODEL_PATH, chat_format=CHAT_FORMAT, n_ctx=0, verbose=False)
 
     messages = []
-    system_message = { "role": "system", "content": system_content }
+    system_message = { "role": "system", "content": system_content_get(git_repository_path) }
     messages.append(system_message)
 
     while True:
@@ -106,6 +110,9 @@ def main():
                     git_repository_path = os.path.realpath(git_repository_path)
 
                 print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
+
+                system_message = { "role": "system", "content": system_content_get(git_repository_path) }
+                messages = [system_message]
                 continue
 
             elif command == "pwd":
