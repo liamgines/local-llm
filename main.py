@@ -1,5 +1,6 @@
 from llama_cpp import Llama
 import os
+import subprocess
 
 # CHAT_FORMAT must be set according to the model
 CHAT_FORMAT = "chatml"
@@ -35,6 +36,19 @@ def chat_completion_get_content(chat_completion):
 
     return contents[0]
 
+def path_is_repository(path):
+    is_repository = subprocess.run(["git", "-C", path, "rev-parse", "--is-inside-work-tree"], capture_output=True, text=True)
+    if is_repository.stdout:
+        return True
+
+    return False
+
+def path_is_repository_message(path):
+    is_repository = path_is_repository(path)
+    if is_repository:
+        return "(git repository)"
+    return "(not a git repository)"
+
 def main():
     git_repository_path = CURRENT_WORKING_DIRECTORY
 
@@ -68,11 +82,11 @@ def main():
 
                     git_repository_path = os.path.realpath(git_repository_path)
 
-                print(f"A: {git_repository_path}")
+                print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
                 continue
 
             elif command == "pwd":
-                print(f"A: {git_repository_path}")
+                print(f"A: {git_repository_path} {path_is_repository_message(git_repository_path)}")
                 continue
 
         messages.append( { "role": "user", "content": message } )
