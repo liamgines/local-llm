@@ -2,6 +2,8 @@ Local LLM
 ========
 A script for chatting with a large language model (LLM) that runs locally.
 
+![Example chat](chat.png)
+
 Installation
 --------
 First, ensure you have Python 3 installed.
