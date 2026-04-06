@@ -240,7 +240,7 @@ def main():
 
         messages.append( { "role": "user", "content": message } )
 
-        print("Generating response...\n")
+        print("Waiting for response...\n")
         chat_completion = llm.create_chat_completion(messages=messages)
         content = chat_completion_get_content(chat_completion)
 
