@@ -44,4 +44,4 @@ search:
     - html
     - json
 ```
-6. Save the file and restart the container so the search engine can respond to searches with `json` on request.
+6. Save the file and restart the container so the search engine can respond to queries with `json` on request.
