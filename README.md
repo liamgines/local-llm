@@ -6,7 +6,7 @@ A script for chatting with a large language model (LLM) that runs locally.
 
 Installation
 --------
-First, ensure you have Python 3 installed.
+First, ensure you have Python 3 installed and a `.gguf` file containing LLM data.
 
 Then, run the following commands:
 ```
