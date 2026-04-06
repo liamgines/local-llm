@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # CHAT_FORMAT must be set according to the model
-CHAT_FORMAT = "chatml"
-MODEL_PATH = "model.gguf"
+CHAT_FORMAT = os.getenv("CHAT_FORMAT")
+MODEL_PATH = os.getenv("MODEL_PATH")
 DEFAULT_SYSTEM_CONTENT = "You are an assistant who perfectly summarizes information and answers questions." 
 CURRENT_WORKING_DIRECTORY = os.path.realpath(os.getcwd())
 
@@ -48,7 +48,11 @@ def chat_completion_get_content(chat_completion):
     return contents[0]
 
 def path_is_repository(path):
-    is_repository = subprocess.run(["git", "-C", path, "rev-parse", "--is-inside-work-tree"], capture_output=True, text=True)
+    try:
+        is_repository = subprocess.run(["git", "-C", path, "rev-parse", "--is-inside-work-tree"], capture_output=True, text=True)
+    except:
+        return False
+
     if is_repository.stdout:
         return True
 
@@ -58,7 +62,8 @@ def path_is_repository_message(path):
     is_repository = path_is_repository(path)
     if is_repository:
         return "(git repository)"
-    return "(not a git repository)"
+    return ""
+    # return "(not a git repository)"
 
 def path_get_repository_files(path):
     git_repository_files = []
