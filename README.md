@@ -45,3 +45,13 @@ search:
     - json
 ```
 6. Save the file and restart the container so the search engine can respond to queries with `json` on request.
+
+Commands
+--------
+| Syntax                | Description                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| cd [dir]              | changes the directory where the git repository context will be taken from (if a local repository is found there). |
+| pwd                   | prints said directory.                                                                                            |
+| web-search [prompt]   | appends the first related web search result to the provided prompt and then sends both as a message to the LLM.   |
+
+Any other input is sent as a message to the LLM.
