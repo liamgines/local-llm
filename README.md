@@ -18,7 +18,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Next, create a `.env` file with this structure:
+Next, create a `.env` file with roughly this structure:
 ```
 MODEL_PATH="model.gguf"
 CHAT_FORMAT="chatml"
